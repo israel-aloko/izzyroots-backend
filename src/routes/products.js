@@ -6,7 +6,7 @@ router.get('/', async (req, res) => {
     const {category} = req.query;
     const filter = {isActive: true};
     if (category) filter.category = category;
-    const products = await Products.find(filter).sort({ createdAt: -1});
+    const products = await Product.find(filter).sort({ createdAt: -1});
     res.json(products);
 });
 
