@@ -16,7 +16,8 @@ const productSchema = new mongoose.Schema({
         enum: ['Leafy Veg', 'Fruit Veg', 'Grains', 'Herbs & Spices']
     },
     description: {type: String},
-    image: { type: String, required: true},
+    image: { type: String, required: true}, //for the cover photo
+    images: [{ type: String }], //full gallery, product detail carousel
     price: {type: Number, required: true},
     variants: [variantSchema],
     isActive: { type: Boolean, default: true}

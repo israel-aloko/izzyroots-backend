@@ -1,10 +1,19 @@
 const router = require('express').Router();
 const isAdmin = require('../middleware/isAdmin');
+const upload = require('../middleware/upload');
 const Product = require('../models/Product');
 
-router.post('/', isAdmin, async (req, res) => {
+router.post('/', isAdmin, upload.array('images', 5), async (req, res) => {
     try {
-        const product = await Product.create(req.body);
+        const productData = { ...req.body };
+        if (req.body.variants) {
+            productData.variants = JSON.parse(req.body.variants);
+        }
+        if (req.files && req.files.length > 0) {
+            productData.images = req.files.map(f => f.path);
+            productData.image = productData.images[0]; //cover = first uploaded photo
+        }
+        const product = await Product.create(productData);
         res.status(201).json(product);
     } catch (err) {
         res.status(400).json({ message: err.message});
@@ -12,9 +21,17 @@ router.post('/', isAdmin, async (req, res) => {
 });
 
 //update
-router.put('/:id', isAdmin, async (req, res) => {
+router.put('/:id', isAdmin, upload.array('images', 5), async (req, res) => {
     try {
-        const product = await Product.findByIdAndUpdate(req.params.id, req.body, {new: true});
+        const productData = { ...req.body };
+        if (req.body.variants) {
+            productData.variants = JSON.parse(req.body.variants);
+        }
+        if (req.files && req.files.length > 0) {
+            productData.images = req.files.map(f => f.path);
+            productData.image = productData.images[0];
+        }
+        const product = await Product.findByIdAndUpdate(req.params.id, productData, {new: true});
         if (!product) return res.status(404).json({ message: 'Product not found'});
         res.json(product);
     } catch (err) {
@@ -22,7 +39,7 @@ router.put('/:id', isAdmin, async (req, res) => {
     }
 });
 
-//soft delete
+//soft delete - ADD IN A PERMANENT DELETE TOO
 router.delete('/:id', isAdmin, async (req, res) => {
     const product = await Product.findByIdAndUpdate(req.params.id, {isActive: false}, {new: true});
     if (!product) return res.status(404).json({ message: 'Product not found'});
