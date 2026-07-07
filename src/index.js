@@ -9,6 +9,7 @@ const registerRoutes = require('./routes/registerRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const productRoutes = require('./routes/products');
 const adminProductRoutes = require('./routes/adminProducts');
+const searchRoutes = require('./routes/searchRoutes')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.use('/api', registerRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/products', adminProductRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');

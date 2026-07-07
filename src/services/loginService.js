@@ -31,7 +31,7 @@ async function login({ email, password }) {
 async function handleGoogleLogin(idToken) {
     try {
         const ticket = await googleClient.verifyIdToken({
-            idToke,
+            idToken,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
