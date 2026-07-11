@@ -9,16 +9,20 @@ const variantSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
     name: {type: String, required: true},
-    localName: {type: String}, //eg: "ugu", "efo riro"
+    localName: {type: String},
     category: {
         type: String, 
         required: true,
-        enum: ['Leafy Veg', 'Fruit Veg', 'Grains', 'Herbs & Spices']
+        trim: true,
     },
     description: {type: String},
+    maturityPeriod: { type: String},
+    plantingSeason: {type: String},
+    instructions: {type: String},
     image: { type: String, required: true}, //for the cover photo
     images: [{ type: String }], //full gallery, product detail carousel
     price: {type: Number, required: true},
+    stockCount: {type: Number, default: 0},
     variants: [variantSchema],
     isActive: { type: Boolean, default: true}
 }, {timestamps: true});

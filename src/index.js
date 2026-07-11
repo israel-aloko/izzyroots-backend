@@ -10,13 +10,21 @@ const adminRoutes = require('./routes/adminRoutes');
 const productRoutes = require('./routes/products');
 const adminProductRoutes = require('./routes/adminProducts');
 const searchRoutes = require('./routes/searchRoutes')
+const adminCategoryRoutes = require('./routes/adminCategories')
+const categoryRoutes = require('./routes/categories')
+const adminUserRoutes = require('./routes/adminUsers');
+const isAdmin = require('./middleware/isAdmin');
+const deliveryZoneRoutes = require('./routes/deliveryZones');
+const adminDeliveryZoneRoutes = require('./routes/adminDeliveryZones');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: ['http://localhost:5173',
+    //add in the port for local hosting
+    'http://192.168.1.7:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
 }));
 
@@ -33,6 +41,11 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/admin/products', adminProductRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/admin/categories', adminCategoryRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/admin/users', isAdmin, adminUserRoutes);
+app.use('/api/delivery-zones', deliveryZoneRoutes);
+app.use('/api/admin/delivery-zones', adminDeliveryZoneRoutes);
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');
