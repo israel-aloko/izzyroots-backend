@@ -4,6 +4,7 @@ const VerificationToken = require('../models/VerificationToken');
 const { sendOtp } = require('./emailService');
 
 const SALT_ROUNDS = 10;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
 
 function generateOtp() {
     return String(Math.floor(Math.random() * 1000000)).padStart(6, '0');
@@ -14,6 +15,12 @@ async function register({ fullname, email, password, role }) {
     if (existingUser) {
         const err = new Error('User already exists');
         err.status = 409;
+        throw err;
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+        const err = new Error('Your password MUST be at least 8 characters and include an uppercase letter, a lowercase letter, a number, and a special character.');
+        err.status = 400;
         throw err;
     }
 
