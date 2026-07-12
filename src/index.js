@@ -16,6 +16,8 @@ const adminUserRoutes = require('./routes/adminUsers');
 const isAdmin = require('./middleware/isAdmin');
 const deliveryZoneRoutes = require('./routes/deliveryZones');
 const adminDeliveryZoneRoutes = require('./routes/adminDeliveryZones');
+const ordersRouter = require('./routes/orders');
+const paymentsRouter = require('./routes/payments');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +48,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/admin/users', isAdmin, adminUserRoutes);
 app.use('/api/delivery-zones', deliveryZoneRoutes);
 app.use('/api/admin/delivery-zones', adminDeliveryZoneRoutes);
+app.use('/api/orders', ordersRouter);
+app.use('/api/payments', paymentsRouter);
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');

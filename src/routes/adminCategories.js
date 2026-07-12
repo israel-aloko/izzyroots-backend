@@ -48,7 +48,6 @@ router.put('/:id', async (req, res) => {
                 return res.status(409).json({message: 'Another category already has that name'});
             }
 
-            //keep products pointing at the new name so nothing goes orphaned
             await Product.updateMany({ category: category.name}, {category: name.trim() });
             category.name = name.trim();
         }
@@ -66,8 +65,6 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE /api/admin/categories/:id
-// If products still use this category, deactivate it instead of deleting.
-// Only hard-delete when zero products reference it.
 router.delete('/:id', async (req, res) => {
   try {
     const category = await Category.findById(req.params.id);
