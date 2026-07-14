@@ -39,6 +39,17 @@ router.get('/admin/all', isAdmin, async (req, res) => {
     }
 })
 
+//customer: get own order history
+router.get('/mine', isAuthenticated, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 })
+        res.json(orders)
+    } catch (err) {
+        console.error('Fetch my orders error:', err)
+        res.status(500).json({ message: 'Failed to fetch orders' })
+    }
+})
+
 //GET /orders/admin/:id - admin: view any single order in full detail
 router.get('/admin/:id', isAdmin, async (req, res) => {
     try {

@@ -24,7 +24,9 @@ const productSchema = new mongoose.Schema({
     price: {type: Number, required: true},
     stockCount: {type: Number, default: 0},
     variants: [variantSchema],
-    isActive: { type: Boolean, default: true}
+    isActive: { type: Boolean, default: true},
+    avgRating: {type: Number, default: 0},
+    numReviews: {type: Number, default: 0}
 }, {timestamps: true});
 
 productSchema.set('toJSON', {

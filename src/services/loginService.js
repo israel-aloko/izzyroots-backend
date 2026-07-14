@@ -1,8 +1,13 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+function generateToken(userId) {
+    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {expiresIn: '7d'});
+}
 
 async function login({ email, password }) {
     const user = await User.findOne({ email });
@@ -24,6 +29,7 @@ async function login({ email, password }) {
         userId: String(user._id),
         fullname: user.fullname,
         role: user.role,
+        token: generateToken(user._id),
         message: 'Login successful',
     };
 }
@@ -58,6 +64,7 @@ async function handleGoogleLogin(idToken) {
             userId: String(user._id),
             fullname: user.fullname,
             role: user.role,
+            token: generateToken(user._id),
             message: "Login successful",
         };
     } catch (err) {
