@@ -12,6 +12,7 @@ const supportTicketSchema = new mongoose.Schema({
     subject: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     images: [{ type: String }], // Cloudinary URLs
+    imagesRequested: {type: Boolean, default: false},
     status: { type: String, enum: TICKET_STATUSES, default: 'open' },
     adminNote: { type: String, trim: true, default: '' },
     refund: {

@@ -34,12 +34,15 @@ router.get('/', async (req, res) => {
 // PATCH /api/admin/support-tickets/:id/status — update status + adminNote together
 router.patch('/:id/status', async (req, res) => {
     try {
-        const { status, adminNote } = req.body;
-        const ticket = await SupportTicket.findById(req.params.id);
+        const { status, adminNote, imagesRequested } = req.body;
+        const ticket = await SupportTicket.findById(req.params.id)
+            .populate('customer', 'fullname email')
+            .populate('order', 'total paymentStatus');
         if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
 
         if (status) ticket.status = status;
         if (adminNote !== undefined) ticket.adminNote = adminNote;
+        if (imagesRequested !== undefined) ticket.imagesRequested = imagesRequested;
         await ticket.save();
 
         res.json(ticket);
@@ -101,7 +104,9 @@ function mapRefundStatus(paystackStatus) {
 // Optional body: { amount } in Naira, for a partial refund. Omit for a full refund.
 router.post('/:id/refund', async (req, res) => {
     try {
-        const ticket = await SupportTicket.findById(req.params.id).populate('order');
+        const ticket = await SupportTicket.findById(req.params.id)
+            .populate('customer', 'fullname email')
+            .populate('order');
         if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
         if (!ticket.order) return res.status(400).json({ message: 'This ticket has no associated order' });
         if (ticket.order.paymentStatus !== 'paid') {
