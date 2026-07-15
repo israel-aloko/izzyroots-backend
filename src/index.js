@@ -19,6 +19,8 @@ const adminDeliveryZoneRoutes = require('./routes/adminDeliveryZones');
 const ordersRouter = require('./routes/orders');
 const paymentsRouter = require('./routes/payments');
 const reviewRoutes = require('./routes/reviews');
+const supportTicketRoutes = require('./routes/supportTickets');
+const adminSupportTicketRoutes = require('./routes/adminSupportTickets');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +28,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: ['http://localhost:5173',
     //add in the port for local hosting
-    'http://192.168.1.7:5173'],
+    'http://192.168.1.6:5173'], //replace when ipv4 changes
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
 }));
@@ -52,6 +54,8 @@ app.use('/api/admin/delivery-zones', adminDeliveryZoneRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/support-tickets', supportTicketRoutes);
+app.use('/api/admin/support-tickets', isAdmin, adminSupportTicketRoutes);
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');

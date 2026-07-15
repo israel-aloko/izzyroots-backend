@@ -123,4 +123,21 @@ router.delete('/:reviewId', isAuthenticated, async (req, res) => {
     }
 });
 
+// GET /api/reviews/top 
+router.get('/top', async (req, res) => {
+    try {
+        const limit = Math.min(parseInt(req.query.limit) || 6, 20);
+
+        const reviews = await Review.find({ rating: { $gte: 4 }, comment: { $exists: true, $ne: '' } })
+            .populate('user', 'fullname')
+            .populate('product', 'name images')
+            .sort({ rating: -1, createdAt: -1 })
+            .limit(limit);
+
+        res.json(reviews);
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to fetch top reviews' });
+    }
+});
+
 module.exports = router;

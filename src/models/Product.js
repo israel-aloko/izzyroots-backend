@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema({
     plantingSeason: {type: String},
     instructions: {type: String},
     image: { type: String, required: true}, //for the cover photo
-    images: [{ type: String }], //full gallery, product detail carousel
+    images: [{ type: String }], //full gally, product detail carousel
     price: {type: Number, required: true},
     stockCount: {type: Number, default: 0},
     variants: [variantSchema],

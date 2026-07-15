@@ -16,6 +16,10 @@ async function login({ email, password }) {
         return { userId: null, fullname: null, role: null, message: 'User not found' };
     }
 
+    if (!user.isActive) {
+        return { userId: null, fullname: null, role: null, message: 'Your account has been deactivated. Please contact support.'};
+    }
+
     if (!user.verified) {
         return { userId: null, fullname: null, role: null, message: 'Email not verified. Please check your inbox.'}
     }
@@ -58,6 +62,10 @@ async function handleGoogleLogin(idToken) {
                 password: '',
                 provider: 'google',
             });
+        }
+
+        if (!user.isActive) {
+            return {userId: null, fullname: null, role: null, message: 'Your account has been deactivated. Please contact support.'};
         }
 
         return {

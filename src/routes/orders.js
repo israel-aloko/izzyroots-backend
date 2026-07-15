@@ -50,6 +50,17 @@ router.get('/mine', isAuthenticated, async (req, res) => {
     }
 })
 
+// GET /orders/admin/user/:userId - admin: view a specific customer's orders
+router.get('/admin/user/:userId', isAdmin, async (req, res) => {
+    try {
+        const orders = await Order.find({ user: req.params.userId }).sort({ createdAt: -1 });
+        res.json(orders);
+    } catch (err) {
+        console.error('Admin fetch user orders error:', err);
+        res.status(500).json({ message: 'Failed to fetch orders for user' });
+    }
+});
+
 //GET /orders/admin/:id - admin: view any single order in full detail
 router.get('/admin/:id', isAdmin, async (req, res) => {
     try {
@@ -67,7 +78,7 @@ router.patch('/admin/:id/status', isAdmin, async (req, res) => {
     try {
         const {status} = req.body;
         
-        const validStatuses = ['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+        const validStatuses = ['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status value'});
         }

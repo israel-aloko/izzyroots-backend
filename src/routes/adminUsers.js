@@ -43,7 +43,7 @@ router.put('/:id/role', async (req, res) => {
         const { password, ...safeUser } = user.toObject();
         res.json(safeUser);
     } catch (err) {
-        console.error('Update user role error:', err);
+        console.erroor('Update user role error:', err);
         res.status(500).json({ message: 'Failed to update user role' });
     }
 });
@@ -82,6 +82,7 @@ router.put('/:id/status', async (req, res) => {
         res.status(500).json({ message: 'Failed to update user status' });
     }
 });
+
 
 // DELETE /api/admin/users/:id
 router.delete('/:id', async (req, res) => {
