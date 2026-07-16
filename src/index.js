@@ -21,6 +21,8 @@ const paymentsRouter = require('./routes/payments');
 const reviewRoutes = require('./routes/reviews');
 const supportTicketRoutes = require('./routes/supportTickets');
 const adminSupportTicketRoutes = require('./routes/adminSupportTickets');
+const faqRoutes = require('./routes/faqs');
+const adminFaqRoutes = require('./routes/adminFaqs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -56,6 +58,8 @@ app.use('/api/payments', paymentsRouter);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/support-tickets', supportTicketRoutes);
 app.use('/api/admin/support-tickets', isAdmin, adminSupportTicketRoutes);
+app.use('/api/faqs', faqRoutes);
+app.use('/api/admin/faqs', isAdmin, adminFaqRoutes);
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');
