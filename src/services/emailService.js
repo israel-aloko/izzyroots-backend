@@ -24,6 +24,21 @@ async function sendOtp(toEmail, otp) {
     });
 }
 
+async function sendPasswordResetOtp(toEmail, otp) {
+    await transporter.sendMail({
+        from: `"IzzyRoots" <${process.env.MAIL_USERNAME}>`,
+        to: toEmail,
+        subject: "Your IzzyRoots Password Reset Code",
+        text:
+            `Hi there!\n\n` +
+            `We received a request to reset your IzzyRoots password.\n\n` +
+            `Your password reset code is: ${otp}\n\n` +
+            `This code expires in 15 minutes.\n\n` +
+            `If you did not request a password reset, you can safely ignore this email.\n\n` +
+            `– The IzzyRoots Team`,
+    });
+}
+
 async function sendReceiptEmail(order) {
     const itemsHtml = order.items.map(item => `
         <tr>
@@ -121,4 +136,6 @@ async function sendGuestMessage({ fullname, email, phone, country, region, messa
     });
 }
 
-module.exports = { sendOtp, sendReceiptEmail, sendGuestMessage };
+
+
+module.exports = { sendOtp, sendPasswordResetOtp, sendReceiptEmail, sendGuestMessage };

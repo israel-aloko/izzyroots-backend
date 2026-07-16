@@ -17,8 +17,8 @@ async function login(req, res) {
     }
 
     setAuthCookie(res, response.token);
-    const { toke, ...safeResponse } = response;
-    res.status(200).json(response);
+    const { token, ...safeResponse } = response;
+    res.status(200).json(safeResponse);
 }
 
 async function googleLogin(req, res) {
@@ -31,7 +31,40 @@ async function googleLogin(req, res) {
 
     setAuthCookie(res, response.token);
     const { token, ...safeResponse } = response;
+    res.status(200).json(safeResponse);
+}
+
+async function forgotPassword(req, res) {
+    const { email } = req.body;
+ 
+    const response = await loginService.forgotPassword(email);
+ 
+    if (!response.success) {
+        return res.status(400).json(response);
+    }
+ 
     res.status(200).json(response);
 }
 
-module.exports = { login, googleLogin };
+
+async function verifyResetOtp(req, res) {
+    const response = await loginService.verifyResetOtp(req.body);
+
+    if (!response.success) {
+        return res.status(400).json(response);
+    }
+
+    res.status(200).json(response);
+}
+
+async function resetPassword(req, res) {
+    const response = await loginService.resetPassword(req.body);
+
+    if (!response.success) {
+        return res.status(400).json(response);
+    }
+
+    res.status(200).json(response);
+}
+
+module.exports = { login, googleLogin, forgotPassword, verifyResetOtp, resetPassword };

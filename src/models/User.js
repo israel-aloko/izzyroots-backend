@@ -7,7 +7,11 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
     verified: { type: Boolean, default: false },
     provider: { type: String, default: 'local' },
-    isActive: { type: Boolean, default: true}
+    isActive: { type: Boolean, default: true},
+
+    resetPasswordOtp: {type: String, default: null},
+    resetPasswordOtpExpires: {type: Date, default: null}
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

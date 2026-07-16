@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
+const { sendPasswordResetOtp } = require('./emailService');
+const crypto = require('crypto');
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -80,4 +82,102 @@ async function handleGoogleLogin(idToken) {
     }
 }
 
-module.exports = { login, handleGoogleLogin };
+async function forgotPassword(email) {
+    const user = await User.findOne({email});
+    
+    if (!user) {
+        return {
+            success: true,
+            message: "If an account exists with this email, we've sent a verification code.",
+        };
+    }
+
+    // Google accounts don't have a local password
+    if (user.provider === "google") {
+        return {
+            success: true,
+            message: "If an account exists with this email, we've sent a verification code.",
+        };
+    } //delete this if not needed
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpires = new Date(Date.now() + 15 * 60 * 1000);
+
+    await user.save();
+
+    await sendPasswordResetOtp(user.email, otp);
+
+    return {
+        success: true,
+        message: "If an account exists with this email, we've sent a verification code.",
+    };
+
+}
+
+async function verifyResetOtp({ email, otp }) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return {
+            success: false,
+            message: "Invalid or expired code.",
+        };
+    }
+
+    if (
+        user.resetPasswordOtp !== otp ||
+        !user.resetPasswordOtpExpires ||
+        user.resetPasswordOtpExpires < new Date()
+    ) {
+        return {
+            success: false,
+            message: "Invalid or expired code.",
+        };
+    }
+
+    return {
+        success: true,
+        message: "Code verified successfully.",
+    };
+}
+
+async function resetPassword({ email, otp, password }) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return {
+            success: false,
+            message: "Invalid request.",
+        };
+    }
+
+    if (
+        user.resetPasswordOtp !== otp ||
+        !user.resetPasswordOtpExpires ||
+        user.resetPasswordOtpExpires < new Date()
+    ) {
+        return {
+            success: false,
+            message: "Invalid or expired code.",
+        };
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+
+    // Clear OTP after successful reset
+    user.resetPasswordOtp = undefined;
+    user.resetPasswordOtpExpires = undefined;
+
+    await user.save();
+
+    return {
+        success: true,
+        message: "Password reset successful.",
+    };
+}
+
+module.exports = { login, handleGoogleLogin, forgotPassword, verifyResetOtp, resetPassword };
