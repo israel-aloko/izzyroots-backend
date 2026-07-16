@@ -3,6 +3,7 @@ const router = express.Router();
 const SupportTicket = require('../models/SupportTicket');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const uploadTickets = require('../middleware/uploadTicketimages');
+const {sendGuestMessage} = require('../services/emailService');
 
 
 router.post('/', isAuthenticated, uploadTickets.array('images', 5), async (req, res) => {
@@ -25,22 +26,40 @@ router.post('/', isAuthenticated, uploadTickets.array('images', 5), async (req, 
 });
 
 //post /api/support-tickets - customer raises a ticket
-router.post('/', isAuthenticated, async (req, res) => {
+// router.post('/', isAuthenticated, async (req, res) => {
+//     try {
+//         const { type, subject, description, order, images } = req.body;
+
+//         const ticket = await SupportTicket.create({
+//             customer: req.user.id,
+//             type,
+//             subject,
+//             description,
+//             order: order || undefined,
+//             images: images || [],
+//         });
+
+//         res.status(201).json(ticket);
+//     } catch (err) {
+//         res.status(400).json({ message: err.message});
+//     }
+// });
+
+//POST /api/support-tickets/guest-message - not logged in, email support directly, no DB record
+router.post('/guest-message', async (req, res) => {
     try {
-        const { type, subject, description, order, images } = req.body;
+        const {fullname, email, phone, country, region, message} = req.body;
 
-        const ticket = await SupportTicket.create({
-            customer: req.user.id,
-            type,
-            subject,
-            description,
-            order: order || undefined,
-            images: images || [],
-        });
+        if (!fullname || !email || !message) {
+            return res.status(400).json({message: 'Name, email, and message are required'});
+        }
 
-        res.status(201).json(ticket);
+        await sendGuestMessage({ fullname, email, phone, country, region, message });
+
+        res.status(200).json({message: 'Message sent'});
     } catch (err) {
-        res.status(400).json({ message: err.message});
+        console.error('Guest message error:', err);
+        res.status(500).json({ message: 'Failed to send message'});
     }
 });
 

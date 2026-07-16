@@ -105,4 +105,20 @@ async function sendReceiptEmail(order) {
         });
 }
 
-module.exports = { sendOtp, sendReceiptEmail };
+async function sendGuestMessage({ fullname, email, phone, country, region, message}) {
+    await transporter.sendMail({
+        from: `"IzzyRoots" <${process.env.MAIL_USERNAME}>`,
+        to: process.env.MAIL_USERNAME,
+        replyTo: email,
+        subject: `New contact form message from ${fullname}`,
+        text:
+            `Name: ${fullname}\n` +
+            `Email: ${email}\n` +
+            `Phone: ${phone || '—'}\n` +
+            `Country: ${country || '—'}\n` +
+            `Region: ${region || '—'}\n\n` +
+            `Message:\n${message}`,
+    });
+}
+
+module.exports = { sendOtp, sendReceiptEmail, sendGuestMessage };
