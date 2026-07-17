@@ -136,6 +136,54 @@ async function sendGuestMessage({ fullname, email, phone, country, region, messa
     });
 }
 
+async function sendAdminPickupOrderNotification(order) {
+    const itemsText = order.items
+        .map(item => `- ${item.name}${item.packSize ? ` (${item.packSize})` : ''} x${item.quantity}`)
+        .join('\n');
+
+    await transporter.sendMail({
+        from: `"IzzyRoots" <${process.env.MAIL_USERNAME}>`,
+        to: process.env.MAIL_USERNAME,
+        subject: `New pickup order — #${order.id.toString().slice(-8).toUpperCase()}`,
+        text:
+            `A new order has come in for store pickup.\n\n` +
+            `Order: #${order.id.toString().slice(-8).toUpperCase()}\n` +
+            `Customer: ${order.fullname} (${order.email}, ${order.phone})\n` +
+            `Total: ₦${order.total.toFixed(2)}\n\n` +
+            `Items:\n${itemsText}\n\n` +
+            `Mark it ready for pickup from the admin portal once it's packed.`
+    });
+}
+
+async function sendPickupReadyEmail(order) {
+    const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background:#FBF9F4;">
+            <div style="background:#052e16; color:#fff; padding: 24px;">
+                <p style="margin:0; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#86efac;">Ready for Pickup</p>
+                <h1 style="margin:4px 0 0; font-size:22px;">IzzyRoots</h1>
+            </div>
+            <div style="padding: 20px;">
+                <p style="color:#333;">Hi ${order.fullname},</p>
+                <p style="color:#444;">Your order <strong>#${order.id.toString().slice(-8).toUpperCase()}</strong> is packed and ready for collection.</p>
+                <table style="width:100%; margin:16px 0; font-size:13px; color:#555; background:#f0fdf4; border-radius:6px;">
+                    <tr><td style="padding:12px 16px;">Bring your receipt or Order number when you come by.</td></tr>
+                </table>
+                <p style="color:#444;">See you soon!</p>
+            </div>
+            <div style="background:#f0fdf4; padding:16px 20px; text-align:center;">
+                <p style="margin:0; font-size:12px; color:#166534; font-style:italic;">Thank you for growing with us.</p>
+            </div>
+        </div>
+    `;
+
+    await transporter.sendMail({
+        from: `"IzzyRoots" <${process.env.MAIL_USERNAME}>`,
+        to: order.email,
+        subject: `Your IzzyRoots order is ready for pickup — #${order.id.toString().slice(-8).toUpperCase()}`,
+        html,
+    });
+}
 
 
-module.exports = { sendOtp, sendPasswordResetOtp, sendReceiptEmail, sendGuestMessage };
+
+module.exports = { sendOtp, sendPasswordResetOtp, sendReceiptEmail, sendGuestMessage, sendAdminPickupOrderNotification, sendPickupReadyEmail };

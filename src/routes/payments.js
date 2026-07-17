@@ -4,7 +4,7 @@ const https = require('https');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const isAuthenticated = require('../middleware/isAuthenticated');
-const {sendReceiptEmail} = require('../services/emailService');
+const {sendReceiptEmail, sendAdminPickupOrderNotification} = require('../services/emailService');
 
 // helper: call Paystack's verify endpoint using the secret key
 function verifyWithPaystack(reference) {
@@ -97,6 +97,14 @@ router.post('/verify', isAuthenticated, async (req, res) => {
             await sendReceiptEmail(order);
         } catch (emailErr) {
             console.error('Receipt email failed:', emailErr);
+        }
+
+        if (order.fulfillmentMethod === 'pickup') {
+            try {
+                await sendAdminPickupOrderNotification(order);
+            } catch (emailErr) {
+                console.error('Admin pickup notification failed:', emailErr)
+            }
         }
 
         res.json(order);

@@ -25,14 +25,24 @@ const orderSchema = new Schema({
         required: true,
         validate: v => Array.isArray(v) && v.length > 0
     },
+    fulfillmentMethod: {
+        type: String, 
+        enum: ['delivery', 'pickup'],
+        default: 'delivery',
+        required: true
+    },
 
     //delivery details(from checkout form)
     fullname: {type: String, required: true},
     email: {type: String, required: true},
     phone: {type: String, required: true},
-    address: {type: String, required: true},
-    country: {type: String, required: true, default: 'Nigeria'},
-    region: {type: String, required: true},
+    address: {
+        type: String,
+        required: function () {return this.fulfillmentMethod === 'delivery'; }},
+    country: {type: String, default: 'Nigeria'},
+    region: {
+        type: String,
+        required: function () {return this.fulfillmentMethod === 'delivery'; }},
     notes: {type: String},
 
     subtotal: {type: Number, required: true},
@@ -41,7 +51,7 @@ const orderSchema = new Schema({
 
     status: {
         type: String,
-        enum: ['pending_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'],
+        enum: ['pending_payment', 'paid', 'processing', 'ready_for_pickup', 'picked_up', 'shipped', 'delivered', 'cancelled', 'refunded'],
         default: 'pending_payment'
     },
 
@@ -52,7 +62,9 @@ const orderSchema = new Schema({
         enum: ['unpaid', 'paid', 'failed'],
         default: 'unpaid'
     },
-    paidAt: {type: Date}
+    paidAt: {type: Date},
+
+    pickupReadyNotifiedAt: {type: Date}
 
 }, {timestamps: true});
 
