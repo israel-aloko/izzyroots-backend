@@ -184,6 +184,22 @@ async function sendPickupReadyEmail(order) {
     });
 }
 
+async function sendAdminInviteEmail(toEmail, fullname, tempPassword) {
+    const info = await transporter.sendMail({
+        from: `"IzzyRoots" <${process.env.MAIL_USERNAME}>`,
+        to: toEmail,
+        subject: "You've been added as an IzzyRoots admin",
+        text:
+            `Hi ${fullname},\n\n` +
+            `An existing admin has added you as an administrator on IzzyRoots.\n\n` +
+            `Email: ${toEmail}\n` +
+            `Temporary password: ${tempPassword}\n\n` +
+            `Log in with these details and change your password as soon as possible.\n\n` +
+            `If you weren't expecting this, please let us know.\n\n` +
+            `– The IzzyRoots Team`,
+    });
 
+    console.log("Invite email sent:", info);
+}
 
-module.exports = { sendOtp, sendPasswordResetOtp, sendReceiptEmail, sendGuestMessage, sendAdminPickupOrderNotification, sendPickupReadyEmail };
+module.exports = { sendOtp, sendPasswordResetOtp, sendReceiptEmail, sendGuestMessage, sendAdminPickupOrderNotification, sendPickupReadyEmail, sendAdminInviteEmail };

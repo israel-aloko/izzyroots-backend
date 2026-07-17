@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const User = require('../models/User');
+const { sendAdminInviteEmail } = require('../services/emailService');
+
+function generateTempPassword() {
+    return crypto.randomBytes(9).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
+}
 
 router.get('/', async (req, res) => {
     try {
@@ -12,41 +19,78 @@ router.get('/', async (req, res) => {
     }
 });
 
-// PUT /api/admin/users/:id/role - change a user's role
-router.put('/:id/role', async (req, res) => {
+// POST /api/admin/users/invite - create a new admin account and email them a temporary password
+router.post('/invite', async (req, res) => {
     try {
-        const { role } = req.body;
+        const { fullname, email } = req.body;
 
-        if (!['customer', 'admin'].includes(role)) {
-            return res.status(400).json({ message: 'Role must be "customer" or "admin"' });
+        if (!fullname || !email) {
+            return res.status(400).json({ message: 'Full name and email are required' });
         }
 
-        const user = await User.findById(req.params.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const existing = await User.findOne({ email: email.toLowerCase().trim() });
+        if (existing) {
+            return res.status(400).json({ message: 'A user with this email already exists' });
         }
 
-        if (String(user._id) === String(req.user._id) && role !== 'admin') {
-            return res.status(400).json({ message: 'You cannot change your own role' });
-        }
+        const tempPassword = generateTempPassword();
+        const hashed = await bcrypt.hash(tempPassword, 10);
 
-        if (user.role === 'admin' && role === 'customer') {
-            const adminCount = await User.countDocuments({ role: 'admin' });
-            if (adminCount <= 1) {
-                return res.status(400).json({ message: 'Cannot demote the last remaining admin' });
-            }
-        }
+        const newAdmin = await User.create({
+            fullname: fullname.trim(),
+            email: email.trim(),
+            password: hashed,
+            role: 'admin',
+            isActive: true,
+            verified: true,
+            provider: 'local'
+        });
 
-        user.role = role;
-        await user.save();
+        await sendAdminInviteEmail(newAdmin.email, newAdmin.fullname, tempPassword);
 
-        const { password, ...safeUser } = user.toObject();
-        res.json(safeUser);
+        const { password, ...safeUser } = newAdmin.toObject();
+        res.status(201).json(safeUser);
     } catch (err) {
-        console.erroor('Update user role error:', err);
-        res.status(500).json({ message: 'Failed to update user role' });
+        console.error('Invite admin error:', err);
+        res.status(500).json({ message: 'Failed to send admin invite' });
     }
 });
+
+// PUT /api/admin/users/:id/role - change a user's role
+// router.put('/:id/role', async (req, res) => {
+//     try {
+//         const { role } = req.body;
+
+//         if (!['customer', 'admin'].includes(role)) {
+//             return res.status(400).json({ message: 'Role must be "customer" or "admin"' });
+//         }
+
+//         const user = await User.findById(req.params.id);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         if (String(user._id) === String(req.user._id) && role !== 'admin') {
+//             return res.status(400).json({ message: 'You cannot change your own role' });
+//         }
+
+//         if (user.role === 'admin' && role === 'customer') {
+//             const adminCount = await User.countDocuments({ role: 'admin' });
+//             if (adminCount <= 1) {
+//                 return res.status(400).json({ message: 'Cannot demote the last remaining admin' });
+//             }
+//         }
+
+//         user.role = role;
+//         await user.save();
+
+//         const { password, ...safeUser } = user.toObject();
+//         res.json(safeUser);
+//     } catch (err) {
+//         console.erroor('Update user role error:', err);
+//         res.status(500).json({ message: 'Failed to update user role' });
+//     }
+// });
 
 // PUT /api/admin/users/:id/status - activate or deactivate a user
 router.put('/:id/status', async (req, res) => {
