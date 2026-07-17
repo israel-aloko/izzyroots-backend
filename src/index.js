@@ -31,7 +31,7 @@ app.use(cors({
   origin: ['http://localhost:5173',
     //add in the port for local hosting
     'http://192.168.1.6:5173',
-  'https://izzyroots-react-69s2q26lj-israel-ndas-projects.vercel.app'
+    'https://izzyroots-react.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
