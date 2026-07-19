@@ -33,7 +33,7 @@ exports.adminLogin = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
-        if (user.role !== 'admin') {
+        if (!['admin', 'superadmin'].includes(user.role)) {
             return res.status(403).json({ message: 'Access denied. Admins only.' });
         }
 
@@ -89,7 +89,7 @@ exports.adminGoogleLogin = async (req, res) => {
             return res.status(401).json({ message: 'No account found for this email.' });
         }
 
-        if (user.role !== 'admin') {
+        if (!['admin', 'superadmin'].includes(user.role)) {
             return res.status(403).json({ message: 'Access denied. Admins only.' });
         }
 

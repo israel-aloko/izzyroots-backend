@@ -7,7 +7,7 @@ const {
     adminLogout,
 } = require('../controllers/adminAuthController');
 
-const isAdmin = require('../middleware/isAdmin');
+const {isAdmin} = require('../middleware/isAdmin');
 
 router.post('/login', adminLogin);
 router.post('/google-login', adminGoogleLogin);

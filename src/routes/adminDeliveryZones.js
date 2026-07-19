@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const isAdmin = require('../middleware/isAdmin');
+const {isAdmin} = require('../middleware/isAdmin');
 const DeliveryZone = require('../models/Deliveryzone');
 
 // GET /api/admin/delivery-zones - list all zones (active + inactive)

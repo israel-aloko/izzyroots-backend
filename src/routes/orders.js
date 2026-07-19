@@ -252,7 +252,7 @@ const crypto = require('crypto');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const isAuthenticated = require('../middleware/isAuthenticated');
-const isAdmin = require('../middleware/isAdmin')
+const {isAdmin} = require('../middleware/isAdmin')
 const { sendPickupReadyEmail } = require('../services/emailService');
 
 //get /orders/admin/all - for the admin to view all the orders, with optional filters 

@@ -22,20 +22,24 @@ router.get('/', async (req, res) => {
 // POST /api/admin/users/invite - create a new admin account and email them a temporary password
 router.post('/invite', async (req, res) => {
     try {
+        if (req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Only a super admin can invite new admins' });
+        }
+ 
         const { fullname, email } = req.body;
-
+ 
         if (!fullname || !email) {
             return res.status(400).json({ message: 'Full name and email are required' });
         }
-
+ 
         const existing = await User.findOne({ email: email.toLowerCase().trim() });
         if (existing) {
             return res.status(400).json({ message: 'A user with this email already exists' });
         }
-
+ 
         const tempPassword = generateTempPassword();
         const hashed = await bcrypt.hash(tempPassword, 10);
-
+ 
         const newAdmin = await User.create({
             fullname: fullname.trim(),
             email: email.trim(),
@@ -45,9 +49,9 @@ router.post('/invite', async (req, res) => {
             verified: true,
             provider: 'local'
         });
-
+ 
         await sendAdminInviteEmail(newAdmin.email, newAdmin.fullname, tempPassword);
-
+ 
         const { password, ...safeUser } = newAdmin.toObject();
         res.status(201).json(safeUser);
     } catch (err) {
@@ -96,27 +100,32 @@ router.post('/invite', async (req, res) => {
 router.put('/:id/status', async (req, res) => {
     try {
         const { isActive } = req.body;
-
+ 
         if (typeof isActive !== 'boolean') {
             return res.status(400).json({ message: 'isActive must be true or false' });
         }
-
+ 
         const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+ 
         if (String(user._id) === String(req.user._id) && !isActive) {
             return res.status(400).json({ message: 'You cannot deactivate your own account' });
         }
-
+ 
+        // Only a superadmin can deactivate an admin or another superadmin
+        if (['admin', 'superadmin'].includes(user.role) && !isActive && req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Only a super admin can deactivate an admin' });
+        }
+ 
         if (user.role === 'admin' && !isActive) {
             const activeAdminCount = await User.countDocuments({ role: 'admin', isActive: true });
             if (activeAdminCount <= 1) {
                 return res.status(400).json({ message: 'Cannot deactivate the last remaining active admin' });
             }
         }
-
+ 
         user.isActive = isActive;
         await user.save();
         const { password, ...safeUser } = user.toObject();
@@ -135,18 +144,23 @@ router.delete('/:id', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+ 
         if (String(user._id) === String(req.user._id)) {
             return res.status(400).json({ message: 'You cannot delete your own account' });
         }
-
+ 
+        // Only a superadmin can delete an admin or another superadmin
+        if (['admin', 'superadmin'].includes(user.role) && req.user.role !== 'superadmin') {
+            return res.status(403).json({ message: 'Only a super admin can delete an admin' });
+        }
+ 
         if (user.role === 'admin') {
             const adminCount = await User.countDocuments({ role: 'admin' });
             if (adminCount <= 1) {
                 return res.status(400).json({ message: 'Cannot delete the last remaining admin' });
             }
         }
-
+ 
         await user.deleteOne();
         res.json({ message: 'User deleted' });
     } catch (err) {

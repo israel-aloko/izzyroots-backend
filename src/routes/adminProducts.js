@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const isAdmin = require('../middleware/isAdmin');
+const {isAdmin} = require('../middleware/isAdmin');
 const upload = require('../middleware/upload');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
