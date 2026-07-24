@@ -4,7 +4,9 @@ const variantSchema = new mongoose.Schema({
     packSize: { type: String, required: true },
     price: { type: Number, required: true },
     stock: { type: Number, default: 0 },
-    sku: {type: String, required: true}
+    sku: {type: String, required: true},
+    discountPercent: {type: Number, default: 0, min: 0, max: 100},
+    discountActive: {type: Boolean, default: false}
 }, { _id: true });
 
 const productSchema = new mongoose.Schema({
@@ -21,8 +23,10 @@ const productSchema = new mongoose.Schema({
     instructions: {type: String},
     image: { type: String, required: true}, //for the cover photo
     images: [{ type: String }], //full gally, product detail carousel
-    price: {type: Number, required: true},
+   price: {type: Number, required: true},
     stockCount: {type: Number, default: 0},
+    discountPercent: { type: Number, default: 0, min: 0, max: 100 },
+    discountActive: { type: Boolean, default: false },
     variants: [variantSchema],
     isActive: { type: Boolean, default: true},
     avgRating: {type: Number, default: 0},

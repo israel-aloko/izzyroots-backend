@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 
         if (search) {
             const term = search.toLowerCase();
-            tickets = tickers.filter(t =>  
+            tickets = tickets.filter(t =>  
                 t.subject.toLowerCase().includes(term) ||
                 t.customer?.fullname?.toLowerCase().includes(term) ||
                 t.customer?.email?.toLowerCase().includes(term)

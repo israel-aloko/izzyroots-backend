@@ -3,6 +3,7 @@ const {isAdmin} = require('../middleware/isAdmin');
 const upload = require('../middleware/upload');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const { checkLowStockCrossing } = require('../services/notificationService');
 
 router.post('/', isAdmin, upload.array('images', 5), async (req, res) => {
     try {
@@ -45,9 +46,15 @@ router.put('/:id', isAdmin, upload.array('images', 5), async (req, res) => {
                 return res.status(400).json({ message: 'Invalid or inactive category' });
             }
         }
-        
+
+        const productBefore = await Product.findById(req.params.id);
+        if (!productBefore) return res.status(404).json({ message: 'Product not found'});
+
         const product = await Product.findByIdAndUpdate(req.params.id, productData, {new: true});
         if (!product) return res.status(404).json({ message: 'Product not found'});
+
+        await checkLowStockCrossing(productBefore, product);
+
         res.json(product);
     } catch (err) {
         res.status(400).json({ message: err.message});

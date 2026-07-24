@@ -23,6 +23,9 @@ const supportTicketRoutes = require('./routes/supportTickets');
 const adminSupportTicketRoutes = require('./routes/adminSupportTickets');
 const faqRoutes = require('./routes/faqs');
 const adminFaqRoutes = require('./routes/adminFaqs');
+const paystackWebhookRoutes = require('./routes/paystackWebhook');
+const wishlistRoutes = require('./routes/wishlist');
+const adminNotificationRoutes = require('./routes/adminNotifications');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -62,6 +65,10 @@ app.use('/api/support-tickets', supportTicketRoutes);
 app.use('/api/admin/support-tickets', isAdmin, adminSupportTicketRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/admin/faqs', isAdmin, adminFaqRoutes);
+app.use('/api/webhooks/paystack', paystackWebhookRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/admin/notifications', isAdmin, adminNotificationRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('IzzyRoots backend is alive 🌱');

@@ -5,6 +5,7 @@ const Review = require('../models/Review');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const isAuthenticated = require('../middleware/isAuthenticated');
+const { createNotification } = require('../services/notificationService');
 
 async function updateProductRatingStats(productId) {
     const stats = await Review.aggregate([
@@ -73,6 +74,14 @@ router.post('/', isAuthenticated, async (req, res) => {
 
         const review = await Review.create({ product: productId, user: req.user._id, rating, comment });
         await updateProductRatingStats(productId);
+
+        const product = await Product.findById(productId).select('name');
+        await createNotification(
+            'new_review',
+            `New ${rating}-star review on ${product ? product.name : 'a product'}`,
+            `/admin/products`,
+            review._id
+        );
 
         res.status(201).json(review);
     } catch (err) {

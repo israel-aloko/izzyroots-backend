@@ -4,6 +4,7 @@ const SupportTicket = require('../models/SupportTicket');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const uploadTickets = require('../middleware/uploadTicketimages');
 const {sendGuestMessage} = require('../services/emailService');
+const { createNotification } = require('../services/notificationService');
 
 
 router.post('/', isAuthenticated, uploadTickets.array('images', 5), async (req, res) => {
@@ -19,6 +20,14 @@ router.post('/', isAuthenticated, uploadTickets.array('images', 5), async (req, 
             order: order || undefined,
             images,
         });
+
+        await createNotification(
+            'support_ticket',
+            `New ${type} ticket: ${subject}`,
+            `/admin/supportTickets`,
+            ticket._id
+        );
+
         res.status(201).json(ticket);
     } catch (err) {
         res.status(400).json({message: err.message});

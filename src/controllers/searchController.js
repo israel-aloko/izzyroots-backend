@@ -11,6 +11,7 @@ const searchProducts = async (req, res) => {
         const products = await Product.find({
             $or: [
                 {name: {$regex: query, $options: 'i'}},
+                {localName: { $regex: query, $options: 'i'}},
                 { category: {$regex: query, $options: 'i'}},
             ]
         }).limit(10);

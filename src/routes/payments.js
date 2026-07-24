@@ -5,6 +5,7 @@ const Order = require('../models/Order');
 const Product = require('../models/Product');
 const isAuthenticated = require('../middleware/isAuthenticated');
 const {sendReceiptEmail, sendAdminPickupOrderNotification} = require('../services/emailService');
+const { createNotification, checkLowStockCrossing } = require('../services/notificationService');
 
 // helper: call Paystack's verify endpoint using the secret key
 function verifyWithPaystack(reference) {
@@ -75,6 +76,8 @@ router.post('/verify', isAuthenticated, async (req, res) => {
 
         // payment confirmed - decrement stock per item
         for (const item of order.items) {
+            const productBefore = await Product.findById(item.product);
+
             if (item.variantId) {
                 await Product.updateOne(
                     { _id: item.product, 'variants._id': item.variantId },
@@ -86,12 +89,26 @@ router.post('/verify', isAuthenticated, async (req, res) => {
                     { $inc: { stockCount: -item.quantity } }
                 );
             }
+
+            if (productBefore) {
+                const productAfter = await Product.findById(item.product);
+                if (productAfter) {
+                    await checkLowStockCrossing(productBefore, productAfter);
+                }
+            }
         }
 
         order.paymentStatus = 'paid';
         order.status = 'paid';
         order.paidAt = new Date();
         await order.save();
+
+        await createNotification(
+            'payment_received',
+            `Payment received: ₦${order.total.toLocaleString()} from ${order.fullname}`,
+            `/admin/orders`,
+            order._id
+        );
 
         try {
             await sendReceiptEmail(order);
