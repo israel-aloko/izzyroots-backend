@@ -43,13 +43,12 @@ REST API powering **IzzyRoots**, a single-seller e-commerce platform for organic
 | Email | Nodemailer |
 | Dev tooling | nodemon |
 
-> Note: `prisma/`, `prisma.config.ts`, and `tsconfig.json` are present in the repo but not part of the active data layer — all current models run on Mongoose. Ignore or remove these if you don't plan to use Prisma.
+
 
 ## Project Structure
 
 ```
 izzyroots-backend/
-├── prisma/                  # reserved/unused — see note above
 ├── src/
 │   ├── config/               # Cloudinary configuration
 │   ├── controllers/           # auth, registration, admin-auth, search
@@ -110,7 +109,7 @@ This runs `nodemon src/index.js`, restarting automatically on file changes. By d
 
 **Never commit `.env` to source control.** It's already listed in `.gitignore`.
 
-⚠️ **Before deploying:** the CORS configuration in `src/index.js` currently whitelists only local development origins (`localhost` and a LAN IP). Update this to include your production frontend domain (e.g. your Vercel URL) before going live, ideally by reading it from an environment variable instead of hard-coding it.
+**Before deploying:** the CORS configuration in `src/index.js` currently whitelists only local development origins (`localhost` and a LAN IP). Update this to include your production frontend domain (e.g. your Vercel URL) before going live, ideally by reading it from an environment variable instead of hard-coding it.
 
 ## API Reference
 
