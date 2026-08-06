@@ -2,15 +2,6 @@
 
 REST API powering **IzzyRoots**, a single-seller e-commerce platform for organic and heirloom vegetable seeds. Built with Node.js, Express, and MongoDB, it handles authentication, the product catalogue, checkout and Paystack payments, order tracking, reviews, and a customer support/refund workflow for the [IzzyRoots frontend](#related-repository).
 
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
-![Paystack](https://img.shields.io/badge/Paystack-00C3F7?style=flat&logo=paystack&logoColor=white)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=flat&logo=cloudinary&logoColor=white)
-![Render](https://img.shields.io/badge/Deployed%20on-Render-46E3B7?style=flat&logo=render&logoColor=white)
-
----
-
 ## Table of Contents
 
 - [Features](#features)
